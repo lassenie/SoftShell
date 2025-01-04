@@ -4,7 +4,7 @@
 
 This free .NET Standard library provides a built-in command shell in your application for various monitoring or manipulation tasks.
 
-Through a client interface, such as the console or Telnet (unencrypted!), it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.
+Through a terminal interface, such as the console or Telnet (unencrypted!), it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.
 
 Standard commands, such as 'help' and 'exit' exist and more will probably come. Each application can add custom commands or terminal interfaces.
 
