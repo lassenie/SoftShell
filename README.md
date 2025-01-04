@@ -1,6 +1,6 @@
 # SoftShell
 
-![Logo](/doc/graphics/Logo.png)
+![Logo](https://raw.githubusercontent.com/lassenie/SoftShell/d756597f7a28654653d51723fe49dfe08af53796/doc/graphics/Logo.png))
 
 This free .NET Standard library provides a built-in command shell in your application for various monitoring or manipulation tasks.
 
