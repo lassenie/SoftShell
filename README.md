@@ -1,0 +1,59 @@
+# SoftShell
+
+![Logo](/doc/graphics/Logo.png)
+
+This free .NET Standard library provides a built-in command shell in your application for various monitoring or manipulation tasks.
+
+Through a client interface, such as the console, Telnet (unencrypted!) it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.
+
+Standard commands, such as 'help' and 'exit' exist and more will probably come. Each application can add custom commands or client interfaces.
+
+## Integrating in your app
+
+    // Create the SoftShell host with core commands
+    using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create your own user authentication class
+    {
+        // Add your custom commands needing special construction
+        shellHost.AddCommand("myapp", "My Application", new MyCustomCommand1(someArgs));
+        shellHost.AddCommand("myapp", "My Application", new MyCustomCommand2(someArgs));
+        ...
+    
+        // Add your remaining custom commands having default constructors
+        shellHost.AddCommands("myapp", "My Application", Assembly.GetExecutingAssembly());
+    
+        // Support both the console and Telnet clients
+        using (var consoleListener = shellHost.AddClientListener(ConsoleClientListener.Instance))
+        using (var telnetListener = shellHost.AddClientListener(
+                        new TelnetClientListener(IPAddress.Loopback, 23))) // localhost port 23 as example
+        {
+            // While your application runs...
+        }
+    }
+
+See the ConsoleDemo1 application in the solution for further details.
+
+## Creating custom commands
+
+Besides the core commands that come with SoftShell you can create your own custom commands.
+
+[Read more](doc/CreatingCustomCommands.md)
+
+## Contribution
+
+Any help developing this library is welcomed.
+
+Ideas for additions and improvements:
+- Additional commands
+- New client interfaces (e.g. web, SSH)
+- General improvements
+- Documentation and demo projects
+- Unit tests
+- Publicity (blogs posts etc.)
+
+## Feature requests and bug reports
+
+If you discover any bugs or have suggestions for improvements, please report them [here](https://github.com/lassenie/SoftShell/issues).
+
+## Disclaimer
+
+The library is under MIT License and provided as-is without any kind of warranty. See the LICENSE file for conditions.
