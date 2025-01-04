@@ -4,9 +4,9 @@
 
 This free .NET Standard library provides a built-in command shell in your application for various monitoring or manipulation tasks.
 
-Through a client interface, such as the console, Telnet (unencrypted!) it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.
+Through a client interface, such as the console or Telnet (unencrypted!), it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.
 
-Standard commands, such as 'help' and 'exit' exist and more will probably come. Each application can add custom commands or client interfaces.
+Standard commands, such as 'help' and 'exit' exist and more will probably come. Each application can add custom commands or terminal interfaces.
 
 ## Integrating in your app
 
@@ -21,10 +21,10 @@ Standard commands, such as 'help' and 'exit' exist and more will probably come. 
         // Add your remaining custom commands having default constructors
         shellHost.AddCommands("myapp", "My Application", Assembly.GetExecutingAssembly());
     
-        // Support both the console and Telnet clients
-        using (var consoleListener = shellHost.AddClientListener(ConsoleClientListener.Instance))
-        using (var telnetListener = shellHost.AddClientListener(
-                        new TelnetClientListener(IPAddress.Loopback, 23))) // localhost port 23 as example
+        // Support both the console and Telnet terminals
+        using (var consoleListener = shellHost.AddTerminalListener(ConsoleTerminalListener.Instance))
+        using (var telnetListener = shellHost.AddTerminalListener(
+                        new TelnetTerminalListener(IPAddress.Loopback, 23))) // localhost port 23 as example
         {
             // While your application runs...
         }
@@ -44,7 +44,7 @@ Any help developing this library is welcomed.
 
 Ideas for additions and improvements:
 - Additional commands
-- New client interfaces (e.g. web, SSH)
+- New terminal interfaces (e.g. web, SSH)
 - General improvements
 - Documentation and demo projects
 - Unit tests
