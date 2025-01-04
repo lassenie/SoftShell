@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 namespace SoftShell.IO
 {
     /// <summary>
-    /// Interface for a command to read keyboard input.
+    /// Interface for a command to explicitly read keyboard input (not standard input).
     /// </summary>
     public interface IKeyboardInput
     {
         /// <summary>
         /// Is keyboard input available to the command? This should be checked once before a command starts reading keyboard input.
-        /// In case of piped commands the keyboard input is only available to the last command.
         /// </summary>
         bool IsAvailable { get; }
 
