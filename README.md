@@ -36,7 +36,7 @@ See the ConsoleDemo1 application in the solution for further details.
 
 Besides the core commands that come with SoftShell you can create your own custom commands.
 
-[Read more](doc/CreatingCustomCommands.md)
+[Read more](https://github.com/lassenie/SoftShell/blob/master/doc/CreatingCustomCommands.md)
 
 ## Contribution
 
