@@ -15,7 +15,7 @@
     * Piping
     * Redirects
 3. Git commit and push.
-4. Add the following Git tag and push: SoftShell/*major-version*/*minor-version*/v *package-version*, e.g. `SoftShell/1/0/v1.0.0`
+4. Add the following Git tag and push: softshell/*major-version*/*minor-version*/v *package-version*, e.g. `softshell/1/0/v1.0.0`
 5. Make a release build and check that a SoftShell...nupkg file is created in the src/SoftShell/bin/Release folder. The file name should have the correct package version in it.
 6. Sign into nuget.org as lassenie.
 7. Upload the new SoftShell...nupkg file, check that all information is correct and click Submit.
