@@ -5,6 +5,7 @@
     * `AssemblyVersion`: Assembly version, e.g. 1.0.0.0
     * `FileVersion`: File version, e.g. 1.0.0.0
     * `Copyright`: Copyright statement if needing update
+    * `PackageReleaseNotes`: Describe the release
 2. Update the LICENSE file if needed, e.g. the Copyright statement.
 3. Run all unit tests and check that they all pass.
 4. Manually test using the ConsoleDemo1 project:

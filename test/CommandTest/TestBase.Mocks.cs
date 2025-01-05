@@ -35,7 +35,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(IsPiped));
+                    Assert.Equal(nameof(IsPiped), call.method);
                     Assert.Empty(call.args);
                     return (bool)(call.returnVal ?? false);
                 }
@@ -47,7 +47,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(IsEnded));
+                    Assert.Equal(nameof(IsEnded), call.method);
                     Assert.Empty(call.args);
                     return (bool)(call.returnVal ?? false);
                 }
@@ -103,7 +103,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(IsPiped));
+                    Assert.Equal(nameof(IsPiped), call.method);
                     Assert.Empty(call.args);
                     return (bool)(call.returnVal ?? false);
                 }
@@ -115,7 +115,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(WindowWidth));
+                    Assert.Equal(nameof(WindowWidth), call.method);
                     Assert.Empty(call.args);
                     return (int?)call.returnVal;
                 }
@@ -127,7 +127,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(WindowHeight));
+                    Assert.Equal(nameof(WindowHeight), call.method);
                     Assert.Empty(call.args);
                     return (int?) call.returnVal;
                 }
@@ -139,7 +139,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(LineTermination));
+                    Assert.Equal(nameof(LineTermination), call.method);
                     Assert.Empty(call.args);
                     return call.returnVal?.ToString() ?? string.Empty;
                 }
@@ -211,7 +211,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(WindowWidth));
+                    Assert.Equal(nameof(WindowWidth), call.method);
                     Assert.Empty(call.args);
                     return (int?)call.returnVal;
                 }
@@ -223,7 +223,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(WindowHeight));
+                    Assert.Equal(nameof(WindowHeight), call.method);
                     Assert.Empty(call.args);
                     return (int?)call.returnVal;
                 }
@@ -235,7 +235,7 @@ namespace CommandTest
                 {
                     var call = _expectedCalls.Dequeue();
 
-                    Assert.Equal(call.method, nameof(LineTermination));
+                    Assert.Equal(nameof(LineTermination), call.method);
                     Assert.Empty(call.args);
                     return call.returnVal?.ToString() ?? string.Empty;
                 }
