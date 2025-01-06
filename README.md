@@ -8,6 +8,17 @@ Through a terminal interface, such as the console or Telnet (unencrypted!), it i
 
 Standard commands, such as 'help' and 'exit' exist and more will probably come. Each application can add custom commands or terminal interfaces.
 
+## Usage
+
+When the user has signed in, a `>` command prompt is shown. Commands can then be entered as in the following examples:
+
+    help
+    asm|more
+    env > variables.txt
+    exit
+
+[Read more](https://github.com/lassenie/SoftShell/blob/master/doc/Usage.md)
+
 ## Integrating in your app
 
     // Create the SoftShell host with core commands
