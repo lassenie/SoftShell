@@ -109,7 +109,7 @@ namespace SoftShell.Commands
                 switch (regexMatch.Groups[2].Value)
                 {
                     case "K": return value * 1024L;
-                    case "M": return value * (1024L ^ 2);
+                    case "M": return value * 1048576L;
                     case "": return value;
                 }
 
