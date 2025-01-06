@@ -57,7 +57,7 @@ namespace CommandTest.Tests
         {
             var hostMock = new Mock<GarbageCollectorCommand.IHost>(MockBehavior.Strict);
 
-            hostMock.Setup(mock => mock.GC_StartNoGCRegion(1024 ^ 2)).Returns(() => true);
+            hostMock.Setup(mock => mock.GC_StartNoGCRegion(1048576)).Returns(() => true);
 
             TestCommandWriteLine(new GarbageCollectorCommand(hostMock.Object), "gc disable -totalsize=1m",
                                  "Disabling garbage collection...",
