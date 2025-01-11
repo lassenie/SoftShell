@@ -15,7 +15,7 @@ namespace SoftShell.Commands.Anonymous
         private Exception _exception;
 
         /// <inheritdoc/>
-        public override string Name => string.Empty;
+        protected override string Name => string.Empty;
 
         /// <inheritdoc/>
         public override string Description => string.Empty;

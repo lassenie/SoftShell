@@ -32,7 +32,7 @@ namespace SoftShell.Commands
         private ICommandCollectionProvider _commandCollectionProvider;
 
         /// <inheritdoc/>
-        public override string Name => "Help";
+        protected override string Name => "help";
 
         /// <inheritdoc/>
         public override string Description => "Shows help information, either as a list of commands or detailed command help info.";
@@ -87,7 +87,7 @@ namespace SoftShell.Commands
 
         private Task ShowCommandHelpAsync(IStdCommandExecutionContext context, string commandName, IEnumerable<Command> commands)
         {
-            var candidates = commands.Where(cmd => cmd.Names.Any(syn => syn.Equals(commandName, StringComparison.InvariantCultureIgnoreCase))).ToList();
+            var candidates = commands.Where(cmd => cmd.CommandNames.Any(syn => syn.Equals(commandName, StringComparison.InvariantCultureIgnoreCase))).ToList();
 
             if (candidates.Count == 1)
             {
@@ -113,7 +113,7 @@ namespace SoftShell.Commands
 
         private Task ShowSubcommandHelpAsync(IStdCommandExecutionContext context, string commandName, string subcommandName, IEnumerable<Command> commands)
         {
-            var candidates = commands.Where(cmd => cmd.Names.Any(syn => syn.Equals(commandName, StringComparison.InvariantCultureIgnoreCase))).ToList();
+            var candidates = commands.Where(cmd => cmd.CommandNames.Any(syn => syn.Equals(commandName, StringComparison.InvariantCultureIgnoreCase))).ToList();
 
             if (candidates.Count == 1)
             {
@@ -159,9 +159,9 @@ namespace SoftShell.Commands
                 else
                     await context.Output.WriteLineAsync($"{group.Key.Name} ({group.Key.Prefix}) commands:").ConfigureAwait(false);
 
-                var lines = TextFormatting.GetAlignedColumnStrings(group.OrderBy(cmd => cmd.Name).ToList(),
+                var lines = TextFormatting.GetAlignedColumnStrings(group.OrderBy(cmd => cmd.CommandName).ToList(),
                                                                    "  ",
-                                                                   ("", cmd => cmd.Name,        TextAlignment.Start),
+                                                                   ("", cmd => cmd.CommandName, TextAlignment.Start),
                                                                    ("", cmd => cmd.Description, TextAlignment.Start));
 
                 foreach (var line in lines)

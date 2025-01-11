@@ -9,7 +9,7 @@ namespace ConsoleDemo1.Commands
 {
     public class AppExitCommand : StdCommand
     {
-        public override string Name => "AppExit";
+        protected override string Name => "appexit";
 
         public override string Description => "Terminates the entire host application.";
 

@@ -185,7 +185,7 @@ namespace SoftShell.Commands
         private IHost _host;
 
         /// <inheritdoc/>
-        public override string Name => "Asm";
+        protected override string Name => "asm";
 
         /// <inheritdoc/>
         public override string Description => "Lists assemblies for the application domain of the shell, or shows detailed assembly info.";

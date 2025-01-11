@@ -355,7 +355,7 @@ namespace SoftShell
                         if (!commandTokens.tokens.Any() || (commandTokens.tokens.First()?.Type != TokenType.Value))
                             throw new Exception($"Missing command at position {commandTokens.position}.");
 
-                        var candidates = Host.Commands.Where(cmd => cmd.Names.Any(name => name.Equals(commandTokens.tokens.First().Content, StringComparison.InvariantCultureIgnoreCase))).ToList();
+                        var candidates = Host.Commands.Where(cmd => cmd.CommandNames.Any(name => name.Equals(commandTokens.tokens.First().Content, StringComparison.InvariantCultureIgnoreCase))).ToList();
                         var commandName = commandTokens.tokens.Any() ? commandTokens.tokens.First().Content : string.Empty;
 
                         if (candidates.Count == 1)

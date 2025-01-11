@@ -35,7 +35,7 @@ namespace SoftShell.Commands
         private const int DefaultWindowHeight = 25;
 
         /// <inheritdoc/>
-        public override string Name => "More";
+        protected override string Name => "more";
 
         /// <inheritdoc/>
         public override string Description => "Displays file or piped input contents one screen at a time.";

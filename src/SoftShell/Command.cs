@@ -24,18 +24,37 @@ namespace SoftShell
         /// <summary>
         /// The pure name of the command.
         /// </summary>
-        public abstract string Name { get; }
+        protected abstract string Name { get; }
+
+        public string CommandName
+        {
+            get
+            {
+                if (_commandName != null)
+                    return _commandName;
+
+                _commandName = new string(Name?.ToLowerInvariant().Where(ch => !char.IsWhiteSpace(ch)).ToArray() ?? new char[0]);
+
+                // Only allow anonymous commands to have empty names
+                if (!IsAnonymous && string.IsNullOrEmpty(_commandName))
+                    throw new Exception($"Empty command name for {this.GetType().Name}.");
+
+                return _commandName;
+            }
+        }
+        private string _commandName = null;
+
 
         /// <summary>
         /// Variants of the command's name - both the pure name and fully qualified name with group prefix.
         /// </summary>
-        public IEnumerable<string> Names
+        public IEnumerable<string> CommandNames
         {
             get
             {
-                if (Group.IsCore) return new[] { Name, $".{Name}", $"{Group.Prefix}.{Name}" };
+                if (Group.IsCore) return new[] { CommandName, $".{CommandName}", $"{Group.Prefix}.{CommandName}" };
 
-                return new[] { Name, $"{Group.Prefix}.{Name}" };
+                return new[] { CommandName, $"{Group.Prefix}.{CommandName}" };
             }
         }
 

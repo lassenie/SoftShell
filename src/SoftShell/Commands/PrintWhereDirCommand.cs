@@ -8,7 +8,7 @@ namespace SoftShell.Commands
 {
     internal class PrintWhereDirCommand : StdCommand
     {
-        public override string Name => "Pwd";
+        protected override string Name => "pwd";
 
         public override string Description => "Prints the current working directory of the application.";
 

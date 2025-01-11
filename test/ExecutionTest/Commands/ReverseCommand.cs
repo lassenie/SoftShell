@@ -9,7 +9,7 @@ namespace ExecutionTest.Commands
 {
     internal class ReverseCommand : TestCommand
     {
-        public override string Name => "Reverse";
+        protected override string Name => "reverse";
 
         public override string Description => "Outputting reversed input.";
 

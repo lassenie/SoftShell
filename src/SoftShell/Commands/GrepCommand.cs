@@ -15,7 +15,7 @@ namespace SoftShell.Commands
     public class GrepCommand : StdCommand
     {
         /// <inheritdoc/>
-        public override string Name => "Grep";
+        protected override string Name => "grep";
 
         /// <inheritdoc/>
         public override string Description => "Searches for one or more patterns in input lines and outputs lines with matching patterns.";

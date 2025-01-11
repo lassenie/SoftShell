@@ -10,7 +10,7 @@ namespace ExecutionTest.Commands
 {
     internal class PassThroughCommand : TestCommand
     {
-        public override string Name => "PassThrough";
+        protected override string Name => "passthrough";
 
         public override string Description => "Passing through any output.";
 

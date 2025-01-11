@@ -11,7 +11,7 @@ namespace SoftShell.Commands
     public class ClearScreenCommand : StdCommand
     {
         /// <inheritdoc/>
-        public override string Name => "Cls";
+        protected override string Name => "cls";
 
         /// <inheritdoc/>
         public override string Description => "Clears the terminal's screen.";

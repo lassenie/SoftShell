@@ -13,7 +13,7 @@ namespace SoftShell.Commands
     public class ExitCommand : StdCommand
     {
         /// <inheritdoc/>
-        public override string Name => "Exit";
+        protected override string Name => "exit";
 
         /// <inheritdoc/>
         public override string Description => "Terminates the SoftShell session (not the application).";

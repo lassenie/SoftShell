@@ -19,7 +19,7 @@ namespace SoftShell.Commands
         Func<IEnumerable<string>> _infoFunc;
 
         /// <inheritdoc/>
-        public override string Name => "Info";
+        protected override string Name => "info";
 
         /// <inheritdoc/>
         public override string Description => "Shows info about the shell and the host program.";

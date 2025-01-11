@@ -12,7 +12,7 @@ namespace ConsoleDemo1.Commands
 {
     public class AppInfoCommand : StdCommand
     {
-        public override string Name => "Info";
+        protected override string Name => "info";
 
         public override string Description => "App-specific info command.";
 

@@ -30,7 +30,12 @@ namespace SoftShell
 
         public Subcommand(string name, string description)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            // Allow the name to be empty for a non-subcommand, but not null
+            if (name is null)
+                throw new ArgumentNullException(nameof(name));
+
+            Name = new string(name?.ToLowerInvariant().Where(ch => !char.IsWhiteSpace(ch)).ToArray() ?? new char[0]);
+
             Description = description ?? throw new ArgumentNullException(nameof(description));
         }
 

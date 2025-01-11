@@ -29,8 +29,8 @@ namespace SoftShell
             if (exception is null)
                 return string.Empty;
 
-            if (!string.IsNullOrEmpty(command?.Name))
-                sb.Append($"{command.Name}: ");
+            if (!string.IsNullOrEmpty(command?.CommandName))
+                sb.Append($"{command.CommandName}: ");
 
             if ((exception is AggregateException aggregateException) && aggregateException.InnerExceptions.Any())
             {

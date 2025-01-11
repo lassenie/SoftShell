@@ -296,8 +296,8 @@ namespace SoftShell
             groupName = groupName ?? CoreGroupName;
 
             // Check if command/aliases clash
-            var existingNames = _commands.SelectMany(cmd => cmd.Names).ToList();
-            var newFullName = $"{groupPrefix}.{command.Name}";
+            var existingNames = _commands.SelectMany(cmd => cmd.CommandNames).ToList();
+            var newFullName = $"{groupPrefix}.{command.CommandName}";
             if (existingNames.Any(name => string.Equals(name, newFullName, StringComparison.InvariantCultureIgnoreCase)))
                 throw new InvalidOperationException($"Failed to add command {newFullName}. A command with the same name or alias already exists.");
 

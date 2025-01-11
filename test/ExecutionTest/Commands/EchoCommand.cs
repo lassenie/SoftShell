@@ -9,7 +9,7 @@ namespace ExecutionTest.Commands
 {
     internal class EchoCommand : TestCommand
     {
-        public override string Name => "Echo";
+        protected override string Name => "echo";
 
         public override string Description => "Writes a given text as a line to the output.";
 

@@ -20,8 +20,8 @@ namespace ExecutionTest.Tests
                               "xyz",
                               typeof(SubcmdAndNonSubcmdCommand));
 
-            TestCommandLineException("SubcmdAndNonSubcmd subcmdx",
-                                     "SubcmdAndNonSubcmd: Unknown subcommand 'subcmdx'. Possible subcommands:  (none):   subcmd: Subcommand description.");
+            TestCommandLineException("subcmdandnonsubcmd subcmdx",
+                                     "subcmdandnonsubcmd: Unknown subcommand 'subcmdx'. Possible subcommands:  (none):   subcmd: Subcommand description.");
         }
 
         [Fact]
@@ -46,10 +46,10 @@ namespace ExecutionTest.Tests
                               typeof(SubcmdOnlyCommand));
 
             TestCommandLineException("SubcmdOnly subcmd1",
-                                     "SubcmdOnly: Missing 1 required subcmd1 argument.");
+                                     "subcmdonly: Missing 1 required subcmd1 argument.");
 
             TestCommandLineException("SubcmdOnly subcmd1 -valueoption=abc",
-                                     "SubcmdOnly: Missing 1 required subcmd1 argument.");
+                                     "subcmdonly: Missing 1 required subcmd1 argument.");
 
             // subcmd2
 
@@ -68,7 +68,7 @@ namespace ExecutionTest.Tests
             // Unknown subcommand
 
             TestCommandLineException("SubcmdOnly subcmd3",
-                                     "SubcmdOnly: Unknown subcommand 'subcmd3'. Possible subcommands:  subcmd1: Subcommand 1 description.  subcmd2: Subcommand 2 description.");
+                                     "subcmdonly: Unknown subcommand 'subcmd3'. Possible subcommands:  subcmd1: Subcommand 1 description.  subcmd2: Subcommand 2 description.");
         }
     }
 }

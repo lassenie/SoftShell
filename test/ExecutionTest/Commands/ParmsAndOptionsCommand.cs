@@ -10,7 +10,7 @@ namespace ExecutionTest.Commands
 {
     internal class ParmsAndOptionsCommand : TestCommand
     {
-        public override string Name => "ParmsOptions";
+        protected override string Name => "parmsoptions";
 
         public override string Description => "Test command with specified arguments/options";
 

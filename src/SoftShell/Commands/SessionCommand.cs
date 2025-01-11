@@ -27,7 +27,7 @@ namespace SoftShell.Commands
         private ISessionCollectionProvider _sessionCollectionProvider;
 
         /// <inheritdoc/>
-        public override string Name => "Session";
+        protected override string Name => "session";
 
         /// <inheritdoc/>
         public override string Description => "Lists current SoftShell sessions.";

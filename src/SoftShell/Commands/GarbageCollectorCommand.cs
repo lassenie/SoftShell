@@ -43,7 +43,7 @@ namespace SoftShell.Commands
         private IHost _host;
 
         /// <inheritdoc/>
-        public override string Name => "GC";
+        protected override string Name => "gc";
 
         /// <inheritdoc/>
         public override string Description => "Interacts with the .NET garbage collector.";

@@ -210,7 +210,7 @@ namespace SoftShell.Execution
         /// </inheritdoc>
         Task ICommandOutput.ClearScreenAsync()
         {
-            if (_isOutputLineTerminated || IsOutputNull)
+            if (IsOutputNull)
                 return Task.CompletedTask;
 
             _isOutputLineTerminated = true;

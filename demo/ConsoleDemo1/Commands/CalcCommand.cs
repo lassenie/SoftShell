@@ -10,7 +10,7 @@ namespace ConsoleDemo1.Commands
 {
     internal class CalcCommand : Command
     {
-        public override string Name => "Calc";
+        protected override string Name => "calc";
 
         public override string Description => "Calculates the value of a simple addition, subtraction, multiplication or division with one operator.";
 

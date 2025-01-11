@@ -9,7 +9,7 @@ namespace ConsoleDemo1.Commands
 {
     internal class ThrowExceptionCommand : StdCommand
     {
-        public override string Name => "Throw";
+        protected override string Name => "throw";
 
         public override string Description => "Throws an exception which will be directed to the error output.";
 

@@ -38,7 +38,7 @@ namespace SoftShell.Commands
         private IHost _host;
 
         /// <inheritdoc/>
-        public override string Name => "Tee";
+        protected override string Name => "tee";
 
         /// <inheritdoc/>
         public override string Description => "Writes text from standard input to a specified file (UTF-8 encoded) and passes the text to standard output.";

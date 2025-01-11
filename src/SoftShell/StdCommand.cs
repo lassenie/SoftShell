@@ -367,7 +367,7 @@ namespace SoftShell
                                                                       ("", subcmd => subcmd.Description, TextAlignment.Start)));
 
                 lines.Add(string.Empty);
-                lines.Add($"Type '{context.Command.Name} {this.Name} <subcommand-name>' to get detailed help for a subcommand.");
+                lines.Add($"Type '{context.Command.CommandName} {this.CommandName} <subcommand-name>' to get detailed help for a subcommand.");
             }
             else
             {

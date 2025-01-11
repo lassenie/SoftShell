@@ -9,7 +9,7 @@ namespace ExecutionTest.Commands
 {
     internal class ThrowExceptionCommand : TestCommand
     {
-        public override string Name => "Throw";
+        protected override string Name => "throw";
 
         public override string Description => "Command that throws an exception";
 

@@ -17,7 +17,7 @@ namespace ConsoleDemo1.Commands
 
         private IHost _host;
 
-        public override string Name => "Delay";
+        protected override string Name => "delay";
 
         public override string Description => "Waits for a given number of seconds before processing piped input, if any, and finishing.";
 

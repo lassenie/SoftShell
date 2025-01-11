@@ -9,7 +9,7 @@ namespace ExecutionTest.Commands
 {
     internal class SubcmdOnlyCommand : TestCommand
     {
-        public override string Name => "SubcmdOnly";
+        protected override string Name => "subcmdonly";
 
         public override string Description => "Testing a command with subcommands but no possibility to execute without.";
 

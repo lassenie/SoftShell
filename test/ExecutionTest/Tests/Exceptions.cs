@@ -13,7 +13,7 @@ namespace ExecutionTest.Tests
         public void TestExceptionThrown()
         {
             TestCommandLineException("throw Hello",
-                                     "Throw: Hello",
+                                     "throw: Hello",
                                      typeof(ThrowExceptionCommand));
         }
 
@@ -21,12 +21,12 @@ namespace ExecutionTest.Tests
         public void TestExceptionThrownAndPassedThrough()
         {
             TestCommandLineException("throw Hello|passthrough",
-                                     "Throw: HelloPassThrough: Command cancelled.",
+                                     "throw: Hellopassthrough: Command cancelled.",
                                      typeof(ThrowExceptionCommand),
                                      typeof(PassThroughCommand));
 
             TestCommandLineException("throw Hello|reverse|passthrough",
-                                     "Throw: HelloReverse: Command cancelled.PassThrough: Command cancelled.",
+                                     "throw: Helloreverse: Command cancelled.passthrough: Command cancelled.",
                                      typeof(ThrowExceptionCommand),
                                      typeof(ReverseCommand),
                                      typeof(PassThroughCommand));

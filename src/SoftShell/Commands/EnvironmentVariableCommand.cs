@@ -12,7 +12,7 @@ namespace SoftShell.Commands
 {
     public class EnvironmentVariableCommand : StdCommand
     {
-        public override string Name => "Env";
+        protected override string Name => "env";
 
         public override string Description => "Handling of environment variables for the application's process.";
 

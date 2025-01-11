@@ -9,7 +9,7 @@ namespace ConsoleDemo1.Commands
 {
     public class AppCommand2 : StdCommand
     {
-        public override string Name => "App2";
+        protected override string Name => "app2";
 
         public override string Description => "App-specific command 2";
 
