@@ -12,34 +12,38 @@ Standard commands, such as 'help' and 'exit' exist and more will probably come. 
 
 When the user has signed in, a `>` command prompt is shown. Commands can then be entered as in the following examples:
 
-    help
-    asm|more
-    env > variables.txt
-    exit
+```text
+help
+asm|more
+env > variables.txt
+exit
+```
 
 [Read more](https://github.com/lassenie/SoftShell/blob/master/doc/Usage.md)
 
 ## Integrating in your app
 
-    // Create the SoftShell host with core commands
-    using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create your own user authentication class
+```csharp
+// Create the SoftShell host with core commands
+using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create your own user authentication class
+{
+    // Add your custom commands needing special construction
+    shellHost.AddCommand("myapp", "My Application", new MyCustomCommand1(someArgs));
+    shellHost.AddCommand("myapp", "My Application", new MyCustomCommand2(someArgs));
+    ...
+
+    // Add your remaining custom commands having default constructors
+    shellHost.AddCommands("myapp", "My Application", Assembly.GetExecutingAssembly());
+
+    // Support both the console and Telnet terminals
+    using (var consoleListener = shellHost.AddTerminalListener(ConsoleTerminalListener.Instance))
+    using (var telnetListener = shellHost.AddTerminalListener(
+                    new TelnetTerminalListener(IPAddress.Loopback, 23))) // localhost port 23 as example
     {
-        // Add your custom commands needing special construction
-        shellHost.AddCommand("myapp", "My Application", new MyCustomCommand1(someArgs));
-        shellHost.AddCommand("myapp", "My Application", new MyCustomCommand2(someArgs));
-        ...
-    
-        // Add your remaining custom commands having default constructors
-        shellHost.AddCommands("myapp", "My Application", Assembly.GetExecutingAssembly());
-    
-        // Support both the console and Telnet terminals
-        using (var consoleListener = shellHost.AddTerminalListener(ConsoleTerminalListener.Instance))
-        using (var telnetListener = shellHost.AddTerminalListener(
-                        new TelnetTerminalListener(IPAddress.Loopback, 23))) // localhost port 23 as example
-        {
-            // While your application runs...
-        }
+        // While your application runs...
     }
+}
+```
 
 See the ConsoleDemo1 application in the solution for further details.
 
