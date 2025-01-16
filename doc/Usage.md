@@ -45,9 +45,14 @@ Redirecting standard output and standard error:
     env > variables.txt
     tee 2> errors.txt
 
+Appending to existing files:
+
+    env >> variables.txt
+    tee 2>> errors.txt
+
 Redirecting both standard output and standard error to the same file:
 
-    gc enable > alloutput.txt 2>&1
+    gc enable > alloutput.txt 2> &1
     gc enable 2> alloutput.txt > &2
 
 Redirecting standard input:
