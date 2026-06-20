@@ -1,18 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>SoftShell</Title>
-    <Authors>lassenie</Authors>
-    <Description>Provides a built-in command shell in your application for various monitoring or manipulation tasks.
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
-Through a client interface, such as the console or Telnet (unencrypted!), it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.</Description>
+    <Title>SoftShell.Ssh</Title>
+    <Authors>lassenie</Authors>
+    <Description>Provides SSH terminal interfacing for SoftShell.</Description>
     <Copyright>Copyright © SoftShell contributors</Copyright>
     <PackageProjectUrl>https://github.com/lassenie/SoftShell</PackageProjectUrl>
     <PackageIcon>Logo.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/lassenie/SoftShell</RepositoryUrl>
-    <PackageTags>console;telnet;commands;shell</PackageTags>
+    <PackageTags>ssh;commands;shell</PackageTags>
     <AssemblyVersion>0.2.3.0</AssemblyVersion>
     <FileVersion>0.2.3.0</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -23,22 +24,26 @@ Through a client interface, such as the console or Telnet (unencrypted!), it is 
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\doc\graphics\Logo.png">
-      <Pack>True</Pack>
+    <None Include="..\..\doc\graphics\Logo.png" Link="Logo.png">
       <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\..\LICENSE">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\..\README.md">
+    <None Include="..\..\LICENSE" Link="LICENSE">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+    <None Include="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="9.0.0" />
+    <PackageReference Include="FxSsh" Version="1.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftShell\SoftShell.csproj" />
   </ItemGroup>
 
 </Project>

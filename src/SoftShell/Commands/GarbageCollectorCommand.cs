@@ -69,7 +69,7 @@ namespace SoftShell.Commands
         /// <inheritdoc/>
         protected override Task ExecuteAsync(IStdCommandExecutionContext context, Subcommand subcommand, CommandArgs args, CommandOptions options, string commandLine)
         {
-            switch (subcommand.Name)
+            switch (subcommand.Name.ToLowerInvariant())
             {
                 case "collect":
                     return CollectGarbageAsync(context);

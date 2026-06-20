@@ -224,7 +224,7 @@ namespace SoftShell.Commands
                 return ShowAssemblyListAsync(context, assemblies);
             else
             {
-                switch (subcommand.Name)
+                switch (subcommand.Name.ToLowerInvariant())
                 {
                     case "details":
                         {

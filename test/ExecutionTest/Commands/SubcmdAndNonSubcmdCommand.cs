@@ -23,7 +23,7 @@ namespace ExecutionTest.Commands
 
         protected override void TestExecute(IStdCommandExecutionContext context, Subcommand subcommand, CommandArgs args, CommandOptions options, string commandLine)
         {
-            switch (subcommand.Name)
+            switch (subcommand.Name.ToLowerInvariant())
             {
                 case "":
                     Assert.Empty(args);

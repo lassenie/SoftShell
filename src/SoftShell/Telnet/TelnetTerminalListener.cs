@@ -50,6 +50,7 @@ namespace SoftShell.Telnet
             _listener.Bind(IPEndPoint);
             _listener.Listen(1);
 
+            // Keep task to avoid garbage collection
             return _serverTask = Task.Run(() => Listen(sessionCreator));
         }
 

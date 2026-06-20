@@ -1,10 +1,12 @@
-﻿using ConsoleDemo1;
+﻿using System.Net;
+using System.Reflection;
+
+using ConsoleDemo1;
 using ConsoleDemo1.Commands;
+
 using SoftShell;
 using SoftShell.Console;
 using SoftShell.Telnet;
-using System.Net;
-using System.Reflection;
 
 internal class Program
 {

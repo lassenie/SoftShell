@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\SoftShell.Ssh\SoftShell.Ssh.csproj" />
     <ProjectReference Include="..\..\src\SoftShell\SoftShell.csproj" />
   </ItemGroup>
 

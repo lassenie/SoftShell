@@ -27,7 +27,7 @@ namespace ExecutionTest.Commands
 
         protected override void TestExecute(IStdCommandExecutionContext context, Subcommand subcommand, CommandArgs args, CommandOptions options, string commandLine)
         {
-            switch (subcommand.Name)
+            switch (subcommand.Name.ToLowerInvariant())
             {
                 case "":
                     throw new Exception("Subcommand required - should not come to this point.");

@@ -37,7 +37,7 @@ namespace SoftShell.Commands
                 return ShowVariableListAsync(context);
             else
             {
-                switch (subcommand.Name)
+                switch (subcommand.Name.ToLowerInvariant())
                 {
                     case "get":
                         var value = Environment.GetEnvironmentVariable(args.Get(0).ToString(), EnvironmentVariableTarget.Process);
