@@ -2,7 +2,7 @@
 
 ![Logo](https://raw.githubusercontent.com/lassenie/SoftShell/d756597f7a28654653d51723fe49dfe08af53796/doc/graphics/Logo.png)
 
-This free .NET library adds an encrypted SSH terminal interface to [SoftShell](https://github.com/lassenie/SoftShell/blob/master/src/SoftShell/README.md) - a built-in command shell in your application for various monitoring or manipulation tasks.
+This free .NET 8 library adds an encrypted SSH terminal interface to [SoftShell](https://github.com/lassenie/SoftShell/blob/master/src/SoftShell/README.md) - a built-in command shell in your application for various monitoring or manipulation tasks.
 
 It requires the core `SoftShell` package, which provides the shell host and core commands.
 
@@ -20,9 +20,10 @@ using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create 
     // Add your remaining custom commands having default constructors
     shellHost.AddCommands("myapp", "My Application", Assembly.GetExecutingAssembly());
 
-    // Support SSH terminals
+    // Support SSH terminals. The listener loads or creates its RSA host key in the
+    // given directory, keeping the server's identity stable across restarts.
     using (var sshListener = shellHost.AddTerminalListener(
-                    new SshTerminalListener(IPAddress.Loopback, 22))) // localhost port 22 as example
+                    new SshTerminalListener(IPAddress.Loopback, 2222, AppContext.BaseDirectory))) // localhost port 2222 as example (2222 needs no elevated privileges)
     {
         // While your application runs...
     }
@@ -30,6 +31,10 @@ using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create 
 ```
 
 See the ConsoleDemo1 application in the solution for further details.
+
+## Authentication
+
+User authentication is handled by SoftShell, not by the SSH layer. The connection is encrypted, but any SSH credentials are accepted; access control is performed by SoftShell through the interactive login on the terminal.
 
 ## Creating custom commands
 

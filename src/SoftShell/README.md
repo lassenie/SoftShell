@@ -2,7 +2,7 @@
 
 ![Logo](https://raw.githubusercontent.com/lassenie/SoftShell/d756597f7a28654653d51723fe49dfe08af53796/doc/graphics/Logo.png)
 
-This free .NET Standard library provides a built-in command shell in your application for various monitoring or manipulation tasks.
+This free .NET Standard 2.0 library provides a built-in command shell in your application for various monitoring or manipulation tasks.
 
 Through a terminal interface, such as the console or Telnet (unencrypted!), it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.
 
@@ -40,7 +40,7 @@ using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create 
     // Support both the console and Telnet terminals
     using (var consoleListener = shellHost.AddTerminalListener(ConsoleTerminalListener.Instance))
     using (var telnetListener = shellHost.AddTerminalListener(
-                    new TelnetTerminalListener(IPAddress.Loopback, 23))) // localhost port 23 as example
+                    new TelnetTerminalListener(IPAddress.Loopback, 2323))) // localhost port 2323 as example (2323 needs no elevated privileges)
     {
         // While your application runs...
     }

@@ -24,9 +24,13 @@ internal class Program
             // Add remaining application-specific commands assumed to have default constructors
             shellHost.AddCommands("app", "ConsoleDemo1", Assembly.GetExecutingAssembly());
 
-            // Allow both the console and Telnet terminals to connect
+            // Allow both the console and Telnet terminals to connect.
+            // 2323 is a common alternative to the standard Telnet port 23; being above 1024
+            // it doesn't require elevated privileges to bind. Connect with: telnet localhost 2323
+            const int TelnetPort = 2323;
+
             using (var consoleListener = shellHost.AddTerminalListener(ConsoleTerminalListener.Instance))
-            using (var telnetListener = shellHost.AddTerminalListener(new TelnetTerminalListener(IPAddress.Loopback, 23)))
+            using (var telnetListener = shellHost.AddTerminalListener(new TelnetTerminalListener(IPAddress.Loopback, TelnetPort)))
             {
                 // Wait for a command to exit the whole application (a real application would do something meaningful)
                 while (!exitCode.HasValue)

@@ -17,10 +17,10 @@ exit
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| [**SoftShell**](src/SoftShell/README.md) | Core library with the shell host, core commands, and the console and Telnet (unencrypted!) terminal interfaces. |
-| [**SoftShell.Ssh**](src/SoftShell.Ssh/README.md) | Adds an encrypted SSH terminal interface to SoftShell. |
+| Package | Target framework | Description |
+|---------|------------------|-------------|
+| [**SoftShell**](src/SoftShell/README.md) | .NET Standard 2.0 | Core library with the shell host, core commands, and the console and Telnet (unencrypted!) terminal interfaces. |
+| [**SoftShell.Ssh**](src/SoftShell.Ssh/README.md) | .NET 8 | Adds an encrypted SSH terminal interface to SoftShell. |
 
 ## Documentation
 
