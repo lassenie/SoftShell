@@ -1,14 +1,9 @@
 using FxSsh;
 using FxSsh.Services;
 
-using SoftShell.Parsing;
-
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +13,7 @@ namespace SoftShell.Ssh
     /// A terminal interface for communicating with SSH clients.
     /// Offers the same limited ANSI terminal emulation as the Telnet terminal interface.
     /// </summary>
-    public class SshTerminalInterface : TerminalInterface
+    public class SshTerminalInterface : RemoteAnsiTerminalInterface
     {
         // The SSH session this terminal communicates through.
         private readonly Session _session;
@@ -27,20 +22,8 @@ namespace SoftShell.Ssh
         // A stack is kept so that nested channels can be popped back to a previous one when closed.
         private readonly List<SessionChannel> _channelStack = new List<SessionChannel>();
 
-        // Cancels the output worker task when the terminal is disposed.
-        private readonly CancellationTokenSource _workerTaskCancellation = new CancellationTokenSource();
-
         // Background task that flushes queued output bytes to the current channel.
         private Task? _writeTask;
-
-        // Parsed input items (characters and key actions) waiting to be read by the session.
-        private readonly ConcurrentQueue<(KeyAction action, char character)> _receivedItems = new ConcurrentQueue<(KeyAction action, char character)>();
-
-        // Output bytes waiting to be sent to the terminal by the output worker task.
-        private readonly ConcurrentQueue<byte> _bytesToSend = new ConcurrentQueue<byte>();
-
-        // Parses raw input bytes into characters and key actions (arrow keys etc.).
-        private readonly AnsiEscapeSequenceParser _ansiParser = new AnsiEscapeSequenceParser();
 
         // Terminal window size as last reported by the client (null until known).
         private int? _windowWidth = null;
@@ -54,20 +37,6 @@ namespace SoftShell.Ssh
 
         /// <inheritdoc/>
         public override string TerminalInstanceInfo => BitConverter.ToString(_session.SessionId);
-
-        /// <inheritdoc/>
-        public override string LineTermination
-        {
-            get => "\r\n"; // Convention for a terminal in raw/character mode
-            protected set { }
-        }
-
-        /// <inheritdoc/>
-        public override Encoding Encoding
-        {
-            get => Encoding.ASCII; // Same limited emulation as the Telnet interface
-            protected set { }
-        }
 
         /// <inheritdoc/>
         public override int? WindowWidth => _windowWidth;
@@ -140,283 +109,6 @@ namespace SoftShell.Ssh
                 CloseChannel(channel);
 
             base.Dispose();
-        }
-
-        /// <inheritdoc/>
-        public override Task FlushInputAsync(CancellationToken cancelToken)
-        {
-            return Task.Run(() =>
-            {
-                while (!cancelToken.IsCancellationRequested &&
-                       _receivedItems.TryDequeue(out var _))
-                    Thread.Sleep(0);
-            });
-        }
-
-        /// <inheritdoc/>
-        public override Task<IEnumerable<(KeyAction action, char character)>> TryReadAsync(bool echo)
-        {
-            return Task.Run(() =>
-            {
-                var output = new List<(KeyAction action, char character)>();
-
-                // Drain everything currently available from the input queue.
-                while (_receivedItems.TryDequeue(out var receivedItem))
-                {
-                    switch (receivedItem.action)
-                    {
-                        case KeyAction.Character:
-                            switch (receivedItem.character)
-                            {
-                                // Backspace: erase the previous character on screen (destructive backspace).
-                                case '\b':
-                                    if (echo)
-                                    {
-                                        _bytesToSend.Enqueue((byte)'\b');
-                                        _bytesToSend.Enqueue((byte)' ');
-                                        _bytesToSend.Enqueue((byte)'\b');
-                                    }
-                                    output.Add(receivedItem);
-                                    break;
-
-                                // Line termination: passed through (and echoed) as-is.
-                                case '\r':
-                                case '\n':
-                                    if (echo) _bytesToSend.Enqueue((byte)receivedItem.character); // Echo to terminal
-                                    output.Add(receivedItem);
-                                    break;
-
-                                // Any other printable ASCII character.
-                                default:
-                                    if ((receivedItem.character >= ' ') && (receivedItem.character < 127))
-                                    {
-                                        if (echo) _bytesToSend.Enqueue((byte)receivedItem.character); // Echo to terminal
-                                        output.Add(receivedItem);
-                                    }
-                                    break;
-                            }
-                            break;
-
-                        // Non-character key actions (arrow keys, Home, End, ...) are never echoed.
-                        default:
-                            output.Add(receivedItem);
-                            break;
-                    }
-                }
-
-                return output.AsEnumerable();
-            });
-        }
-
-        /// <inheritdoc/>
-        public override Task<(string strOut, KeyAction escapingAction, char escapingChar)> ReadLineAsync(CancellationToken cancelToken, bool echo, string initialString, Func<KeyAction, char, bool> isEscapingCheck)
-        {
-            return Task.Run(() =>
-            {
-                // Set up initial string
-                string strOut = new string((initialString ?? string.Empty).Where(ch => !char.IsControl(ch) && ch >= 32 && ch < 127).ToArray());
-                int currentStrPos = strOut.Length;
-
-                // Write initial string
-                if (echo)
-                {
-                    foreach (var ch in strOut)
-                        _bytesToSend.Enqueue((byte)ch);
-                }
-
-                // Read and edit the line until Enter is pressed, an escaping key is hit,
-                // or the operation is cancelled.
-                while (!cancelToken.IsCancellationRequested)
-                {
-                    var readData = ReadAsync(cancelToken, false).Result;
-
-                    foreach (var data in readData)
-                    {
-                        // Caller wants to handle this key itself (e.g. command history): abort the
-                        // edit, wipe the current line from screen and hand the key back.
-                        if (isEscapingCheck?.Invoke(data.action, data.character) ?? false)
-                        {
-                            // Clear string on screen
-                            if (echo)
-                            {
-                                for (int i = 0; i < currentStrPos; i++) _bytesToSend.Enqueue((byte)'\b');
-                                for (int i = 0; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)' ');
-                                for (int i = 0; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)'\b');
-                            }
-
-                            return (string.Empty, data.action, data.character);
-                        }
-
-                        switch (data.action)
-                        {
-                            case KeyAction.Character:
-                                switch (data.character)
-                                {
-                                    // Backspace: remove the character before the cursor and
-                                    // redraw the remainder of the line.
-                                    case '\b':
-                                        if (currentStrPos > 0)
-                                        {
-                                            strOut = strOut.Remove(currentStrPos - 1, 1);
-                                            currentStrPos--;
-                                            if (echo)
-                                            {
-                                                _bytesToSend.Enqueue((byte)'\b');
-                                                for (int i = currentStrPos; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)strOut[i]);
-                                                _bytesToSend.Enqueue((byte)' ');
-                                                for (int i = 0; i <= strOut.Length - currentStrPos; i++) _bytesToSend.Enqueue((byte)'\b');
-                                            }
-                                        }
-                                        break;
-
-                                    // Bare CR is ignored; end-of-line is signalled by '\n'.
-                                    case '\r':
-                                        break;
-
-                                    // Enter: echo a new line and return the completed line.
-                                    case '\n':
-                                        if (echo)
-                                        {
-                                            _bytesToSend.Enqueue((byte)'\r');
-                                            _bytesToSend.Enqueue((byte)'\n');
-                                        }
-                                        return (strOut, KeyAction.None, '\0');
-
-                                    // Any other (non-control) character: insert it at the cursor.
-                                    default:
-                                        if (!char.IsControl(data.character))
-                                        {
-                                            strOut = strOut.Substring(0, currentStrPos) + data.character + strOut.Substring(currentStrPos);
-                                            if (echo)
-                                            {
-                                                // Insert mode: Write the character and push the subsequent characters
-                                                for (int i = currentStrPos; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)strOut[i]);
-                                                for (int i = currentStrPos; i < strOut.Length - 1; i++) _bytesToSend.Enqueue((byte)'\b');
-                                            }
-                                            currentStrPos++;
-                                        }
-                                        break;
-                                }
-                                break;
-
-                            // Right arrow: move the cursor one character towards the end.
-                            case KeyAction.ArrowForward:
-                                if (currentStrPos < strOut.Length)
-                                {
-                                    if (echo) _bytesToSend.Enqueue((byte)strOut[currentStrPos]);
-                                    currentStrPos++;
-                                }
-                                break;
-
-                            // Left arrow: move the cursor one character towards the start.
-                            case KeyAction.ArrowBack:
-                                if (currentStrPos > 0)
-                                {
-                                    if (echo) _bytesToSend.Enqueue((byte)'\b');
-                                    currentStrPos--;
-                                }
-                                break;
-
-                            // Up/Down arrows are handled by the caller (command history) via the
-                            // escaping check above, so nothing to do here.
-                            case KeyAction.ArrowUp:
-                            case KeyAction.ArrowDown:
-                                // Do nothing
-                                break;
-
-                            // Home: move the cursor to the start of the line.
-                            case KeyAction.Home:
-                                if (currentStrPos > 0)
-                                {
-                                    if (echo) for (int i = 0; i < currentStrPos; i++) _bytesToSend.Enqueue((byte)'\b');
-                                    currentStrPos = 0;
-                                }
-                                break;
-
-                            // End: move the cursor to the end of the line.
-                            case KeyAction.End:
-                                if (currentStrPos < strOut.Length)
-                                {
-                                    if (echo) for (int i = currentStrPos; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)strOut[i]);
-                                    currentStrPos = strOut.Length;
-                                }
-                                break;
-
-                            default:
-                                // Unhandled action
-                                Debug.Assert(false);
-                                break;
-                        }
-                    }
-                }
-
-                throw new TaskCanceledException();
-            });
-        }
-
-        /// <inheritdoc/>
-        public override Task WriteAsync(string text, CancellationToken cancelToken)
-        {
-            return Task.Run(() =>
-            {
-                // Get bytes to transmit. Replace non-ASCII characters with '?'.
-                var bytes = Encoding.GetBytes(text.Select(ch => (ch >= 0 && ch < 127) ? ch : '?').ToArray());
-
-                foreach (var b in bytes)
-                    _bytesToSend.Enqueue(b);
-            });
-        }
-
-        /// <inheritdoc/>
-        public override Task ClearScreenAsync(CancellationToken cancelToken)
-        {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    // ANSI character sequence for clearing the console and homing the cursor.
-                    var bytes = Encoding.GetBytes("[2J[H");
-
-                    foreach (var b in bytes)
-                        _bytesToSend.Enqueue(b);
-                }
-                catch { }
-            }, cancelToken);
-        }
-
-        /// <inheritdoc/>
-        public override Task SetTextColorAsync(ConsoleColor? color, CancellationToken cancelToken)
-        {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    byte[] bytes;
-
-                    switch (color)
-                    {
-                        case ConsoleColor.Red:
-                            // ANSI character sequence for setting red text color.
-                            bytes = Encoding.GetBytes("[31m");
-                            break;
-
-                        case null:
-                        default:
-                            Debug.Assert(!color.HasValue);
-
-                            // ANSI character sequence for resetting all text properties (default color).
-                            bytes = Encoding.GetBytes("[0m");
-                            break;
-                    }
-
-                    foreach (var b in bytes)
-                        _bytesToSend.Enqueue(b);
-                }
-                catch { }
-
-                CurrentTextColor = color;
-
-            }, cancelToken);
         }
 
         /// <summary>

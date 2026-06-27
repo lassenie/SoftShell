@@ -1,25 +1,16 @@
-﻿using SoftShell;
-using SoftShell.Parsing;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SoftShell.Telnet
 {
     /// <summary>
     /// A terminal interface for communicating with Telnet clients.
     /// </summary>
-    internal sealed class TelnetTerminalInterface : TerminalInterface
+    internal sealed class TelnetTerminalInterface : RemoteAnsiTerminalInterface
     {
         private enum CommandState
         {
@@ -49,37 +40,18 @@ namespace SoftShell.Telnet
 
         private Socket _socket;
         private NetworkStream _stream;
-        private CancellationTokenSource _workerTaskCancellation = new CancellationTokenSource();
         private Task _writeTask;
         private Task _readTask;
         private CommandState _commandState = CommandState.None;
         private bool _echoToTerminal = false;
-        private ConcurrentQueue<(KeyAction action, char character)> _receivedItems = new ConcurrentQueue<(KeyAction action, char character)>();
-        private ConcurrentQueue<byte> _bytesToSend   = new ConcurrentQueue<byte>();
 
         private List<byte> _windowSizeBytesReceived = new List<byte>();
-
-        private AnsiEscapeSequenceParser _ansiParser = new AnsiEscapeSequenceParser();
 
         /// <inheritdoc/>
         public override string TerminalType => "Telnet";
 
         /// <inheritdoc/>
         public override string TerminalInstanceInfo => _socket.RemoteEndPoint.ToString();
-
-        /// <inheritdoc/>
-        public override string LineTermination
-        {
-            get => "\r\n"; // Telnet convention
-            protected set { }
-        }
-
-        /// <inheritdoc/>
-        public override Encoding Encoding
-        {
-            get => Encoding.ASCII; // Normal for Telnet
-            protected set { }
-        }
 
         /// <inheritdoc/>
         public override int? WindowWidth
@@ -152,7 +124,7 @@ namespace SoftShell.Telnet
         {
             _readTask = Task.Run(() =>
             {
-                var byteToRead  = new byte[1]; 
+                var byteToRead  = new byte[1];
 
                 while (!_workerTaskCancellation.IsCancellationRequested)
                 {
@@ -201,265 +173,6 @@ namespace SoftShell.Telnet
                     catch { }
                 }
             });
-        }
-
-        /// <inheritdoc/>
-        public override Task FlushInputAsync(CancellationToken cancelToken)
-        {
-            return Task.Run(() =>
-            {
-                while (!cancelToken.IsCancellationRequested &&
-                       _receivedItems.TryDequeue(out var _))
-                    Thread.Sleep(0);
-            });
-        }
-
-        /// <inheritdoc/>
-        public override Task<IEnumerable<(KeyAction action, char character)>> TryReadAsync(bool echo)
-        {
-            return Task.Run(() =>
-            {
-                var output = new List<(KeyAction action, char character)>();
-
-                while (_receivedItems.TryDequeue(out var receivedItem))
-                {
-                    switch (receivedItem.action)
-                    {
-                        case KeyAction.Character:
-                            switch (receivedItem.character)
-                            {
-                                case '\b':
-                                    if (echo)
-                                    {
-                                        _bytesToSend.Enqueue((byte)'\b');
-                                        _bytesToSend.Enqueue((byte)' ');
-                                        _bytesToSend.Enqueue((byte)'\b');
-                                    }
-                                    output.Add(receivedItem);
-                                    break;
-
-                                case '\r':
-                                case '\n':
-                                    if (echo) _bytesToSend.Enqueue((byte)receivedItem.character); // Echo to terminal
-                                    output.Add(receivedItem);
-                                    break;
-
-                                default:
-                                    if ((receivedItem.character >= ' ') && (receivedItem.character < 127))
-                                    {
-                                        if (echo) _bytesToSend.Enqueue((byte)receivedItem.character); // Echo to terminal
-                                        output.Add(receivedItem);
-                                    }
-                                    break;
-                            }
-                            break;
-
-                        default:
-                            output.Add(receivedItem);
-                            break;
-                    }
-                }
-
-                return output.AsEnumerable();
-            });
-        }
-
-        /// <inheritdoc/>
-        public override Task<(string strOut, KeyAction escapingAction, char escapingChar)> ReadLineAsync(CancellationToken cancelToken, bool echo, string initialString, Func<KeyAction, char, bool> isEscapingCheck)
-        {
-            return Task.Run(() =>
-            {
-                // Set up initial string
-                string strOut = new string((initialString ?? string.Empty).Where(ch => !char.IsControl(ch) && ch >= 32 && ch < 127).ToArray());
-                int currentStrPos = strOut.Length;
-
-                // Write initial string
-                if (echo)
-                {
-                    foreach (var ch in strOut)
-                        _bytesToSend.Enqueue((byte)ch);
-                }
-
-                while (!cancelToken.IsCancellationRequested)
-                {
-                    var readData = ReadAsync(cancelToken, false).Result;
-
-                    foreach (var data in readData)
-                    {
-                        if (isEscapingCheck?.Invoke(data.action, data.character) ?? false)
-                        {
-                            // Clear string on screen
-                            if (echo)
-                            {
-                                for (int i = 0; i < currentStrPos; i++) _bytesToSend.Enqueue((byte)'\b');
-                                for (int i = 0; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)' ');
-                                for (int i = 0; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)'\b');
-                            }
-
-                            return (string.Empty, data.action, data.character);
-                        }
-
-                        switch (data.action)
-                        {
-                            case KeyAction.Character:
-                                switch (data.character)
-                                {
-                                    case '\b':
-                                        if (currentStrPos > 0)
-                                        {
-                                            strOut = strOut.Remove(currentStrPos - 1, 1);
-                                            currentStrPos--;
-                                            if (echo)
-                                            {
-                                                _bytesToSend.Enqueue((byte)'\b');
-                                                for (int i = currentStrPos; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)strOut[i]);
-                                                _bytesToSend.Enqueue((byte)' ');
-                                                for (int i = 0; i <= strOut.Length - currentStrPos; i++) _bytesToSend.Enqueue((byte)'\b');
-                                            }
-
-
-                                        }
-                                        break;
-
-                                    case '\r':
-                                        break;
-
-                                    case '\n':
-                                        if (echo)
-                                        {
-                                            _bytesToSend.Enqueue((byte)'\r');
-                                            _bytesToSend.Enqueue((byte)'\n');
-                                        }
-                                        return (strOut, KeyAction.None, '\0');
-
-                                    default:
-                                        if (!char.IsControl(data.character))
-                                        {
-                                            strOut = strOut.Substring(0, currentStrPos) + data.character + strOut.Substring(currentStrPos);
-                                            if (echo)
-                                            {
-                                                // Insert mode: Write the character and push the subsequent characters
-                                                for (int i = currentStrPos; i < strOut.Length; i++) _bytesToSend.Enqueue((byte)strOut[i]);
-                                                for (int i = currentStrPos; i < strOut.Length - 1; i++) _bytesToSend.Enqueue((byte)'\b');
-                                            }
-                                            currentStrPos++;
-                                        }
-                                        break;
-                                }
-                                break;
-
-                            case KeyAction.ArrowForward:
-                                if (currentStrPos < strOut.Length)
-                                {
-                                    if (echo) _bytesToSend.Enqueue((byte)strOut[currentStrPos]);
-                                    currentStrPos++;
-                                }
-                                break;
-
-                            case KeyAction.ArrowBack:
-                                if (currentStrPos > 0)
-                                {
-                                    if (echo) _bytesToSend.Enqueue((byte)'\b');
-                                    currentStrPos--;
-                                }
-                                break;
-
-                            case KeyAction.ArrowUp:
-                            case KeyAction.ArrowDown:
-                                // Do nothing
-                                break;
-
-                            case KeyAction.Home:
-                                if (currentStrPos > 0)
-                                {
-                                    if (echo) for (int i = 0; i < currentStrPos; i++) _bytesToSend.Enqueue((byte)'\b');
-                                    currentStrPos = 0;
-                                }
-                                break;
-
-                            case KeyAction.End:
-                                if (currentStrPos < strOut.Length)
-                                {
-                                    if (echo) for (int i = currentStrPos; i < strOut.Length; i++)  _bytesToSend.Enqueue((byte)strOut[i]);
-                                    currentStrPos = strOut.Length;
-                                }
-                                break;
-
-                            default:
-                                // Unhandled action
-                                Debug.Assert(false);
-                                break;
-                        }
-                    }
-                }
-
-                throw new TaskCanceledException();
-            });
-        }
-
-        /// <inheritdoc/>
-        public override Task WriteAsync(string text, CancellationToken cancelToken)
-        {
-            return Task.Run(() =>
-            {
-                // Get bytes to transmit. Replace non-ASCII characters with '?'.
-                var bytes = Encoding.GetBytes(text.Select(ch => (ch >= 0 && ch < 127) ? ch : '?').ToArray());
-
-                foreach (var b in bytes)
-                    _bytesToSend.Enqueue(b);
-            });
-        }
-
-        /// <inheritdoc/>
-        public override Task ClearScreenAsync(CancellationToken cancelToken)
-        {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    // Get bytes to transmit for ANSI character sequence for clearing the console.
-                    var bytes = Encoding.GetBytes("\u001B[2J");
-
-                    foreach (var b in bytes)
-                        _bytesToSend.Enqueue(b);
-                }
-                catch { }
-            }, cancelToken);
-        }
-
-        /// <inheritdoc/>
-        public override Task SetTextColorAsync(ConsoleColor? color, CancellationToken cancelToken)
-        {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    byte[] bytes;
-
-                    switch (color)
-                    {
-                        case ConsoleColor.Red:
-                            // Get bytes to transmit for ANSI character sequence for setting red text color.
-                            bytes = Encoding.GetBytes("\u001B[31m");
-                            break;
-
-                        case null:
-                        default:
-                            Debug.Assert(!color.HasValue);
-
-                            // Get bytes to transmit for ANSI character sequence for setting default text color.
-                            bytes = Encoding.GetBytes("\u001B[0m"); // For some reason Windows Telnet doesn't respond to code 39 (default color), so just reset all text properties
-                            break;
-                    }
-
-                    foreach (var b in bytes)
-                        _bytesToSend.Enqueue(b);
-                }
-                catch { }
-
-                CurrentTextColor = color;
-
-            }, cancelToken);
         }
 
         private bool HandleByteAsCommand(byte value)
