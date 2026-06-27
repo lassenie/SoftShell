@@ -1,0 +1,25 @@
+# GitVersion configuration (GitVersion 5.x schema).
+#
+# Versioning strategy:
+#   * Only the main branch (master) is treated as a deployment branch.
+#   * Each deployment auto-increments the MINOR version by default. The publish
+#     workflow can rewrite the "increment: Minor" line below to "increment: Patch"
+#     when a release is started manually with the Patch option, so keep that line
+#     spelled exactly that way.
+#   * Released versions are recorded as git tags shaped like
+#       softshell/<major>/<minor>/<major.minor.patch>
+#     e.g. softshell/0/3/0.3.0
+#     The tag-prefix regex below strips the "softshell/<major>/<minor>/" part
+#     so GitVersion can read the embedded SemVer back out of the tag.
+#   * next-version seeds the first release (no tags exist yet). Once a tag is
+#     present it takes over and next-version is ignored.
+
+mode: ContinuousDeployment
+tag-prefix: 'softshell/\d+/\d+/'
+next-version: 0.3.0
+
+branches:
+  main:
+    mode: ContinuousDeployment
+    increment: Minor
+    # Default regex already matches both "master" and "main".

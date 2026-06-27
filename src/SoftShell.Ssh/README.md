@@ -2,6 +2,10 @@
 
 ![Logo](https://raw.githubusercontent.com/lassenie/SoftShell/d756597f7a28654653d51723fe49dfe08af53796/doc/graphics/Logo.png)
 
+[![NuGet version](https://img.shields.io/nuget/v/SoftShell.Ssh)](https://www.nuget.org/packages/SoftShell.Ssh)
+[![NuGet downloads](https://img.shields.io/nuget/dt/SoftShell.Ssh)](https://www.nuget.org/packages/SoftShell.Ssh)
+[![License: MIT](https://img.shields.io/github/license/lassenie/SoftShell)](https://github.com/lassenie/SoftShell/blob/master/LICENSE)
+
 This free .NET 8 library adds an encrypted SSH terminal interface to [SoftShell](https://github.com/lassenie/SoftShell/blob/master/src/SoftShell/README.md) - a built-in command shell in your application for various monitoring or manipulation tasks.
 
 It requires the core `SoftShell` package, which provides the shell host and core commands.

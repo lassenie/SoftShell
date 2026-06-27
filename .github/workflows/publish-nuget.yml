@@ -1,0 +1,117 @@
+name: Publish NuGet packages
+
+# Run this manually from the Actions tab. It only runs on demand (never on push).
+# It operates on whatever ref you launch it from, so launch it from the main branch
+# (master). The workflow:
+#   1. Computes a repo-wide version with GitVersion.
+#   2. Builds and packs both NuGet packages (SoftShell and SoftShell.Ssh) at that version.
+#   3. Pushes both packages to NuGet.org.
+#   4. Tags the commit as softshell/<major>/<minor>/<major.minor.patch>.
+#
+# Inputs let you choose whether this release bumps the minor or patch version, and
+# whether to deploy (publish to NuGet.org + tag) or just do a build-only dry run.
+# A dry run still uploads the packed .nupkg as an artifact.
+#
+# Requires a repository secret named NUGET_API_KEY containing a NuGet.org API key.
+
+on:
+  workflow_dispatch:
+    inputs:
+      increment:
+        description: Version part to increment for this release
+        type: choice
+        required: true
+        default: Minor
+        options:
+          - Minor
+          - Patch
+      deploy:
+        description: Publish the packages to NuGet.org and tag the release
+        type: boolean
+        default: true
+
+permissions:
+  contents: write   # needed to push the release tag
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # GitVersion needs full history
+          fetch-tags: true    # ...and existing release tags
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Select version increment
+        env:
+          INCREMENT: ${{ github.event.inputs.increment || 'Minor' }}
+        run: |
+          echo "Incrementing: $INCREMENT"
+          sed -i "s/increment: Minor/increment: $INCREMENT/" GitVersion.yml
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v1
+        with:
+          versionSpec: '5.x'
+
+      - name: Determine version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v1
+
+      - name: Show version
+        run: |
+          echo "Version: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+          echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+
+      - name: Pack packages
+        env:
+          VERSION: ${{ steps.gitversion.outputs.majorMinorPatch }}
+        run: |
+          for proj in src/SoftShell/SoftShell.csproj src/SoftShell.Ssh/SoftShell.Ssh.csproj; do
+            dotnet pack "$proj" \
+              --configuration Release \
+              --output ./artifacts \
+              -p:Version="$VERSION" \
+              -p:AssemblyVersion="$VERSION.0" \
+              -p:FileVersion="$VERSION.0" \
+              -p:InformationalVersion="${{ steps.gitversion.outputs.fullSemVer }}"
+          done
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: ./artifacts/*.nupkg
+
+      - name: Publish to NuGet.org
+        if: ${{ github.event.inputs.deploy == 'true' }}
+        run: |
+          dotnet nuget push "./artifacts/*.nupkg" \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+      - name: Tag release
+        if: ${{ github.event.inputs.deploy == 'true' }}
+        env:
+          MAJOR: ${{ steps.gitversion.outputs.major }}
+          MINOR: ${{ steps.gitversion.outputs.minor }}
+          MMP: ${{ steps.gitversion.outputs.majorMinorPatch }}
+        run: |
+          TAG="softshell/${MAJOR}/${MINOR}/${MMP}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists, nothing to do."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "Release $MMP"
+            git push origin "$TAG"
+            echo "Created and pushed tag $TAG"
+          fi

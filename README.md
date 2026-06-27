@@ -2,6 +2,11 @@
 
 ![Logo](https://raw.githubusercontent.com/lassenie/SoftShell/d756597f7a28654653d51723fe49dfe08af53796/doc/graphics/Logo.png)
 
+[![Publish NuGet packages](https://github.com/lassenie/SoftShell/actions/workflows/publish-nuget.yml/badge.svg)](https://github.com/lassenie/SoftShell/actions/workflows/publish-nuget.yml)
+[![SoftShell on NuGet](https://img.shields.io/nuget/v/SoftShell?label=SoftShell)](https://www.nuget.org/packages/SoftShell)
+[![SoftShell.Ssh on NuGet](https://img.shields.io/nuget/v/SoftShell.Ssh?label=SoftShell.Ssh)](https://www.nuget.org/packages/SoftShell.Ssh)
+[![License: MIT](https://img.shields.io/github/license/lassenie/SoftShell)](LICENSE)
+
 SoftShell is a free .NET library that provides a built-in command shell in your application for various monitoring or manipulation tasks.
 
 Through a terminal interface it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued. Standard commands, such as `help` and `exit`, exist and more will probably come. Each application can add custom commands or terminal interfaces.

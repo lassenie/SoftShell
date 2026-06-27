@@ -2,6 +2,10 @@
 
 ![Logo](https://raw.githubusercontent.com/lassenie/SoftShell/d756597f7a28654653d51723fe49dfe08af53796/doc/graphics/Logo.png)
 
+[![NuGet version](https://img.shields.io/nuget/v/SoftShell)](https://www.nuget.org/packages/SoftShell)
+[![NuGet downloads](https://img.shields.io/nuget/dt/SoftShell)](https://www.nuget.org/packages/SoftShell)
+[![License: MIT](https://img.shields.io/github/license/lassenie/SoftShell)](https://github.com/lassenie/SoftShell/blob/master/LICENSE)
+
 This free .NET Standard 2.0 library provides a built-in command shell in your application for various monitoring or manipulation tasks.
 
 Through a terminal interface, such as the console or Telnet (unencrypted!), it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.
