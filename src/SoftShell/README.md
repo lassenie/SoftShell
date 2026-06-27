@@ -1,10 +1,27 @@
-# SoftShell.Ssh
+# SoftShell
 
 ![Logo](https://raw.githubusercontent.com/lassenie/SoftShell/d756597f7a28654653d51723fe49dfe08af53796/doc/graphics/Logo.png)
 
-This free .NET library adds an encrypted SSH terminal interface to [SoftShell](https://github.com/lassenie/SoftShell/blob/master/src/SoftShell/README.md) - a built-in command shell in your application for various monitoring or manipulation tasks.
+This free .NET Standard library provides a built-in command shell in your application for various monitoring or manipulation tasks.
 
-It requires the core `SoftShell` package, which provides the shell host and core commands.
+Through a terminal interface, such as the console or Telnet (unencrypted!), it is possible to log in and get a shell-like experience with login, command prompt and various commands that can be issued.
+
+Standard commands, such as 'help' and 'exit' exist and more will probably come. Each application can add custom commands or terminal interfaces.
+
+> For encrypted access over SSH, see the companion [`SoftShell.Ssh`](https://github.com/lassenie/SoftShell/blob/master/src/SoftShell.Ssh/README.md) package.
+
+## Usage
+
+When the user has signed in, a `>` command prompt is shown. Commands can then be entered as in the following examples:
+
+```text
+help
+asm|more
+env > variables.txt
+exit
+```
+
+[Read more](https://github.com/lassenie/SoftShell/blob/master/doc/Usage.md)
 
 ## Integrating in your app
 
@@ -20,9 +37,10 @@ using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create 
     // Add your remaining custom commands having default constructors
     shellHost.AddCommands("myapp", "My Application", Assembly.GetExecutingAssembly());
 
-    // Support SSH terminals
-    using (var sshListener = shellHost.AddTerminalListener(
-                    new SshTerminalListener(IPAddress.Loopback, 22))) // localhost port 22 as example
+    // Support both the console and Telnet terminals
+    using (var consoleListener = shellHost.AddTerminalListener(ConsoleTerminalListener.Instance))
+    using (var telnetListener = shellHost.AddTerminalListener(
+                    new TelnetTerminalListener(IPAddress.Loopback, 23))) // localhost port 23 as example
     {
         // While your application runs...
     }

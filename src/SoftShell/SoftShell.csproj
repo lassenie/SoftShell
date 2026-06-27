@@ -31,7 +31,7 @@ Through a client interface, such as the console or Telnet (unencrypted!), it is 
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\..\README.md">
+    <None Include="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
