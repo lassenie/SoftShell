@@ -3,25 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.6.11819.183 stable
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleDemo1", "..\demo\ConsoleDemo1\ConsoleDemo1.csproj", "{C834DA99-8CD4-4386-AEE5-18054BD98707}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleDemo1", "demo\ConsoleDemo1\ConsoleDemo1.csproj", "{C834DA99-8CD4-4386-AEE5-18054BD98707}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftShell", "SoftShell\SoftShell.csproj", "{B9DC7BB0-109B-4F0D-B02A-5B2407072FB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftShell", "src\SoftShell\SoftShell.csproj", "{B9DC7BB0-109B-4F0D-B02A-5B2407072FB4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{221B26D4-0208-476C-BECD-B76CD1AF484D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExecutionTest", "..\test\ExecutionTest\ExecutionTest.csproj", "{3DEC075A-BAD7-43D2-B0EC-11B653DA5F8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExecutionTest", "test\ExecutionTest\ExecutionTest.csproj", "{3DEC075A-BAD7-43D2-B0EC-11B653DA5F8E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{419D4F0F-EC63-4C8C-96EC-9BEC0A8697F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandTest", "..\test\CommandTest\CommandTest.csproj", "{2A5DAB0D-6EA4-4F44-97D5-208F7A494513}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandTest", "test\CommandTest\CommandTest.csproj", "{2A5DAB0D-6EA4-4F44-97D5-208F7A494513}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftShell.Ssh", "SoftShell.Ssh\SoftShell.Ssh.csproj", "{F15C9A30-88B5-4BE5-AF74-D3C0D23F5A51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftShell.Ssh", "src\SoftShell.Ssh\SoftShell.Ssh.csproj", "{F15C9A30-88B5-4BE5-AF74-D3C0D23F5A51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleDemoSsh", "..\demo\ConsoleDemoSsh\ConsoleDemoSsh.csproj", "{1E6D1D96-3000-4F69-AEC5-445E1BA59476}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleDemoSsh", "demo\ConsoleDemoSsh\ConsoleDemoSsh.csproj", "{1E6D1D96-3000-4F69-AEC5-445E1BA59476}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6F6844A8-13CD-4BCC-A54A-AF621F680CE6}"
 	ProjectSection(SolutionItems) = preProject
-		..\README.md = ..\README.md
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global
