@@ -7,6 +7,7 @@ name: Publish NuGet packages
 #   2. Builds and packs both NuGet packages (SoftShell and SoftShell.Ssh) at that version.
 #   3. Pushes both packages to NuGet.org.
 #   4. Tags the commit as softshell/<major>/<minor>/<major.minor.patch>.
+#   5. Creates a GitHub release for that tag, marked as the latest release.
 #
 # Inputs let you choose whether this release bumps the minor or patch version, and
 # whether to deploy (publish to NuGet.org + tag) or just do a build-only dry run.
@@ -141,6 +142,7 @@ jobs:
             --skip-duplicate
 
       - name: Tag release
+        id: tag
         if: ${{ github.event.inputs.deploy == 'true' }}
         env:
           MAJOR: ${{ steps.gitversion.outputs.major }}
@@ -157,3 +159,41 @@ jobs:
             git push origin "$TAG"
             echo "Created and pushed tag $TAG"
           fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      # Create (or update) a GitHub release for the tag and mark it as the latest
+      # release. Uses the GitHub CLI, which is preinstalled on the runner.
+      - name: Create GitHub release
+        if: ${{ github.event.inputs.deploy == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          MMP: ${{ steps.gitversion.outputs.majorMinorPatch }}
+          SOFTSHELL_NOTES: ${{ github.event.inputs.softshell_release_notes }}
+          SOFTSHELL_SSH_NOTES: ${{ github.event.inputs.softshell_ssh_release_notes }}
+        run: |
+          NOTES=$(cat <<EOF
+          ## SoftShell
+
+          $SOFTSHELL_NOTES
+
+          ## SoftShell.Ssh
+
+          $SOFTSHELL_SSH_NOTES
+          EOF
+          )
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, updating it."
+            gh release edit "$TAG" \
+              --title "SoftShell $MMP" \
+              --notes "$NOTES" \
+              --latest \
+              --draft=false
+          else
+            gh release create "$TAG" \
+              --title "SoftShell $MMP" \
+              --notes "$NOTES" \
+              --latest \
+              --verify-tag
+          fi
+          echo "Release $TAG marked as latest."
