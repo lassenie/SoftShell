@@ -15,7 +15,6 @@
     <RepositoryUrl>https://github.com/lassenie/SoftShell</RepositoryUrl>
     <PackageTags>ssh;commands;shell</PackageTags>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>Commands always in lowercase. Clearing screen now works.</PackageReleaseNotes>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
 

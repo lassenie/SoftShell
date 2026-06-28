@@ -12,7 +12,14 @@ name: Publish NuGet packages
 # whether to deploy (publish to NuGet.org + tag) or just do a build-only dry run.
 # A dry run still uploads the packed .nupkg as an artifact.
 #
-# Requires a repository secret named NUGET_API_KEY containing a NuGet.org API key.
+# Publishing uses NuGet.org Trusted Publishing (OIDC) — no long-lived API key is
+# stored. It requires:
+#   * A Trusted Publishing policy on nuget.org for this repo (owner: lassenie,
+#     repository: SoftShell, workflow file: publish-nuget.yml).
+#   * A repository variable named NUGET_USER holding your nuget.org username
+#     (profile name, not your email). It's public info, so a variable, not a secret.
+# At publish time the NuGet/login action exchanges a GitHub OIDC token for a
+# short-lived (1 hour) NuGet API key.
 
 on:
   workflow_dispatch:
@@ -29,13 +36,26 @@ on:
         description: Publish the packages to NuGet.org and tag the release
         type: boolean
         default: true
+      softshell_release_notes:
+        description: Release notes for the SoftShell package
+        type: string
+        required: true
+      softshell_ssh_release_notes:
+        description: Release notes for the SoftShell.Ssh package
+        type: string
+        required: true
 
 permissions:
   contents: write   # needed to push the release tag
+  id-token: write   # needed to request the OIDC token for NuGet trusted publishing
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Only the repository owner may run this workflow. If anyone else triggers it
+    # the job is skipped, so the trusted-publishing login and the publish/tag steps
+    # below are never reached.
+    if: ${{ github.actor == github.repository_owner }}
 
     steps:
       - name: Checkout
@@ -78,16 +98,24 @@ jobs:
       - name: Pack packages
         env:
           VERSION: ${{ steps.gitversion.outputs.majorMinorPatch }}
+          FULLSEMVER: ${{ steps.gitversion.outputs.fullSemVer }}
+          SOFTSHELL_NOTES: ${{ github.event.inputs.softshell_release_notes }}
+          SOFTSHELL_SSH_NOTES: ${{ github.event.inputs.softshell_ssh_release_notes }}
         run: |
-          for proj in src/SoftShell/SoftShell.csproj src/SoftShell.Ssh/SoftShell.Ssh.csproj; do
+          pack() {
+            local proj="$1"
+            local notes="$2"
             dotnet pack "$proj" \
               --configuration Release \
               --output ./artifacts \
               -p:Version="$VERSION" \
               -p:AssemblyVersion="$VERSION.0" \
               -p:FileVersion="$VERSION.0" \
-              -p:InformationalVersion="${{ steps.gitversion.outputs.fullSemVer }}"
-          done
+              -p:InformationalVersion="$FULLSEMVER" \
+              -p:PackageReleaseNotes="$notes"
+          }
+          pack src/SoftShell/SoftShell.csproj "$SOFTSHELL_NOTES"
+          pack src/SoftShell.Ssh/SoftShell.Ssh.csproj "$SOFTSHELL_SSH_NOTES"
 
       - name: Upload package artifacts
         uses: actions/upload-artifact@v4
@@ -95,11 +123,20 @@ jobs:
           name: nupkg
           path: ./artifacts/*.nupkg
 
+      # Exchange a GitHub OIDC token for a short-lived NuGet API key. Done right
+      # before the push because the key is only valid for 1 hour.
+      - name: NuGet login (trusted publishing)
+        id: nuget_login
+        if: ${{ github.event.inputs.deploy == 'true' }}
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       - name: Publish to NuGet.org
         if: ${{ github.event.inputs.deploy == 'true' }}
         run: |
           dotnet nuget push "./artifacts/*.nupkg" \
-            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
 

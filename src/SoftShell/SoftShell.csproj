@@ -14,7 +14,6 @@ Through a client interface, such as the console or Telnet (unencrypted!), it is 
     <RepositoryUrl>https://github.com/lassenie/SoftShell</RepositoryUrl>
     <PackageTags>console;telnet;commands;shell</PackageTags>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>Commands always in lowercase. Clearing screen now works.</PackageReleaseNotes>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
 
