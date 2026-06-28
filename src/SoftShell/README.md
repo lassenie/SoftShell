@@ -65,7 +65,6 @@ Any help developing this library is welcomed.
 
 Ideas for additions and improvements:
 - Additional commands
-- New terminal interfaces (e.g. web)
 - General improvements
 - Documentation and demo projects
 - Unit tests

@@ -34,7 +34,7 @@ using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create 
 }
 ```
 
-See the ConsoleDemo1 application in the solution for further details.
+See the ConsoleDemoSsh application in the solution for further details.
 
 ## Authentication
 
@@ -51,8 +51,6 @@ Besides the core commands that come with SoftShell you can create your own custo
 Any help developing this library is welcomed.
 
 Ideas for additions and improvements:
-- Additional commands
-- New terminal interfaces (e.g. web)
 - General improvements
 - Documentation and demo projects
 - Unit tests
