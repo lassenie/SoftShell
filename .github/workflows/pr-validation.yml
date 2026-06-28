@@ -1,16 +1,15 @@
-name: Tests
+name: PR validation
 
-# Build and run the unit tests on every push to master.
-# This is what the unit-test status badge in the README reflects.
-# Pull requests are validated separately by the "PR validation" workflow so
-# they do not affect this badge.
+# Build and run the unit tests on every pull request to master.
+# This is a separate workflow from "Tests" so that pull request runs do not
+# affect the unit-test status badge in the README (that badge reflects master).
 
 on:
-  push:
+  pull_request:
     branches: [master]
 
 jobs:
-  test:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
