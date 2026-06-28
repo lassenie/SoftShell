@@ -78,13 +78,13 @@ jobs:
           sed -i "s/increment: Minor/increment: $INCREMENT/" GitVersion.yml
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v1
+        uses: gittools/actions/gitversion/setup@v4
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.x'
 
       - name: Determine version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v1
+        uses: gittools/actions/gitversion/execute@v4
 
       - name: Show version
         run: |
@@ -106,6 +106,13 @@ jobs:
           pack() {
             local proj="$1"
             local notes="$2"
+            # MSBuild treats unescaped commas and semicolons in a -p value as
+            # property separators, so percent-encode them (MSBuild URL-decodes
+            # %XX back to the literal character). Escape % first so we don't
+            # double-encode the sequences we introduce below.
+            notes="${notes//%/%25}"
+            notes="${notes//,/%2C}"
+            notes="${notes//;/%3B}"
             dotnet pack "$proj" \
               --configuration Release \
               --output ./artifacts \
