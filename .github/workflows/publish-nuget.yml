@@ -70,6 +70,11 @@ jobs:
           echo "Version: ${{ steps.gitversion.outputs.majorMinorPatch }}"
           echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
 
+      # Gate the release on the unit tests. If this step fails the job stops here,
+      # so the pack/publish/tag steps below never run for a broken build.
+      - name: Test
+        run: dotnet test SoftShell.sln --configuration Release --blame-hang-timeout 5m
+
       - name: Pack packages
         env:
           VERSION: ${{ steps.gitversion.outputs.majorMinorPatch }}
