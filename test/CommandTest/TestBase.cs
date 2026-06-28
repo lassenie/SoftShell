@@ -95,6 +95,34 @@ namespace CommandTest
             }
         }
 
+        protected void TestCommandThrows(Command command, string commandLine, string expectedExceptionMessage)
+            => TestCommandThrows(command, commandLine, expectedExceptionMessage, NoInput(), NoOutput());
+
+        protected void TestCommandThrows(Command command, string commandLine, string expectedExceptionMessage,
+                                         (string method, object[] args, object? returnVal)[] expectedInputCalls,
+                                         (string method, object[] args, object? returnVal)[] expectedOutputCalls)
+        {
+            var inputMock = new InputMock(expectedInputCalls);
+            var outputMock = new OutputMock(AddCommonOutputCalls(expectedOutputCalls));
+            var errorOutputMock = new ErrorOutputMock(NoErrorOutput());
+            var exceptionHandlerMock = new Mock<ITestExceptionHandler>(MockBehavior.Strict);
+
+            Exception? handledException = null;
+            exceptionHandlerMock.Setup(handler => handler.HandleException(It.IsAny<Exception>()))
+                                .Callback<Exception>(ex => handledException = ex);
+
+            List<(string method, object[] args)> contextCalls = new();
+
+            ExecuteCommandAsync(command, commandLine, inputMock, outputMock, errorOutputMock, exceptionHandlerMock.Object, contextCalls).Wait();
+
+            inputMock.Verify();
+            outputMock.Verify();
+            exceptionHandlerMock.Verify(handler => handler.HandleException(It.IsAny<Exception>()), Times.Once);
+
+            Assert.NotNull(handledException);
+            Assert.Equal(expectedExceptionMessage, handledException!.Message);
+        }
+
         private IEnumerable<(string method, object[] args, object? returnVal)> AddCommonOutputCalls((string method, object[] args, object? returnVal)[] expectedOutputCalls)
         {
             yield return (nameof(ICommandOutput.WindowWidth), new object[0], 80);

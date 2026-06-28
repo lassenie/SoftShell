@@ -1,4 +1,4 @@
-﻿using SoftShell.Helpers;
+using SoftShell.Helpers;
 
 using System;
 using System.Collections.Generic;
@@ -12,12 +12,86 @@ namespace SoftShell.Commands
 {
     public class ProcessCommand : StdCommand
     {
+        /// <summary>
+        /// Type for passing an abstract process object (supports unit testing).
+        /// </summary>
+        public class ProcessObj : AbstractionObj { public ProcessObj(object process) : base(process) { } }
+
+        /// <summary>
+        /// Host interface for accessing the application's process. Can be mocked for unit testing.
+        /// </summary>
+        public interface IHost
+        {
+            /// <summary>
+            /// Gets the application's process as an abstract object.
+            /// Wraps <see cref="Process.GetCurrentProcess"/> in the default implementation.
+            /// </summary>
+            ProcessObj GetCurrentProcess();
+
+            /// <summary>Gets the id of a given process.</summary>
+            int GetId(ProcessObj process);
+
+            /// <summary>Gets the session id of a given process.</summary>
+            int GetSessionId(ProcessObj process);
+
+            /// <summary>Gets the name of a given process.</summary>
+            string GetProcessName(ProcessObj process);
+
+            /// <summary>Gets the main window title of a given process (empty if none).</summary>
+            string GetMainWindowTitle(ProcessObj process);
+
+            /// <summary>Gets the file name of the main module of a given process.</summary>
+            string GetMainModuleFileName(ProcessObj process);
+
+            /// <summary>Gets the amount of physical memory, in bytes, allocated for a given process.</summary>
+            long GetWorkingSet64(ProcessObj process);
+
+            /// <summary>Gets the priority class of a given process as text.</summary>
+            string GetPriorityClass(ProcessObj process);
+
+            /// <summary>Gets the base priority of a given process.</summary>
+            int GetBasePriority(ProcessObj process);
+
+            /// <summary>Gets the number of handles opened by a given process.</summary>
+            int GetHandleCount(ProcessObj process);
+
+            /// <summary>
+            /// Gets the command-line arguments for the application (including the entry executable/DLL as the first element).
+            /// Wraps <see cref="Environment.GetCommandLineArgs"/> in the default implementation.
+            /// </summary>
+            IEnumerable<string> GetCommandLineArgs();
+
+            /// <summary>
+            /// Gets the current working directory of the application.
+            /// Wraps <see cref="Directory.GetCurrentDirectory"/> in the default implementation.
+            /// </summary>
+            string GetCurrentDirectory();
+
+            /// <summary>
+            /// Kills a given process.
+            /// Wraps <see cref="Process.Kill()"/> in the default implementation.
+            /// </summary>
+            void Kill(ProcessObj process);
+        }
+
+        private IHost _host;
+
         public override string Description => "Handling of the application's process";
 
         protected override string Name => "process";
 
-        public ProcessCommand()
+        /// <summary>
+        /// Constructor that creates the command object using a default <see cref="IHost"/> implementation.
+        /// </summary>
+        internal ProcessCommand() : this(new DefaultHost()) { }
+
+        /// <summary>
+        /// Constructor that creates the command object using a given <see cref="IHost"/> implementation.
+        /// </summary>
+        internal ProcessCommand(IHost host)
         {
+            _host = host ?? throw new ArgumentNullException(nameof(host));
+
             HasNonSubcommand("Shows information about the process.");
             HasSubcommand("kill", "Kills the process.");
         }
@@ -38,11 +112,11 @@ namespace SoftShell.Commands
 
         private async Task ListProcessInfoAsync(IStdCommandExecutionContext context)
         {
-            var process = Process.GetCurrentProcess();
+            var process = _host.GetCurrentProcess();
 
             List<string> GetProcessArgs()
             {
-                var args = Environment.GetCommandLineArgs().Skip(1).ToList(); // First arg is the main process DLL, skip that
+                var args = _host.GetCommandLineArgs().Skip(1).ToList(); // First arg is the main process DLL, skip that
 
                 // Ensure at least one line of arguments shown (in that case empty)
                 if (!args.Any())
@@ -53,7 +127,7 @@ namespace SoftShell.Commands
 
             string GetAllocatedPhysicalMemoryStr()
             {
-                var bytes = process.WorkingSet64;
+                var bytes = _host.GetWorkingSet64(process);
 
                 string GetFormattedNumber(long divisor, string unit)
                 {
@@ -90,22 +164,22 @@ namespace SoftShell.Commands
 
             var properties = new List<(string label, string value)>();
 
-            properties.Add(("Id", process.Id.ToString()));
-            properties.Add(("Session", process.SessionId.ToString()));
-            properties.Add(("Name", process.ProcessName));
-            properties.Add(("Main window", process.MainWindowTitle ?? string.Empty));
-            properties.Add(("File", process.MainModule.FileName));
+            properties.Add(("Id", _host.GetId(process).ToString()));
+            properties.Add(("Session", _host.GetSessionId(process).ToString()));
+            properties.Add(("Name", _host.GetProcessName(process)));
+            properties.Add(("Main window", _host.GetMainWindowTitle(process) ?? string.Empty));
+            properties.Add(("File", _host.GetMainModuleFileName(process)));
 
             var processArgs = GetProcessArgs();
 
             for (var i = 0; i < processArgs.Count; ++i)
                 properties.Add((i == 0 ? "Arguments" : string.Empty, processArgs[i]));
 
-            properties.Add(("Current dir", Directory.GetCurrentDirectory()));
-            properties.Add(("Priority class", process.PriorityClass.ToString()));
-            properties.Add(("Base priority", process.BasePriority.ToString()));
+            properties.Add(("Current dir", _host.GetCurrentDirectory()));
+            properties.Add(("Priority class", _host.GetPriorityClass(process)));
+            properties.Add(("Base priority", _host.GetBasePriority(process).ToString()));
             properties.Add(("Memory, physical", GetAllocatedPhysicalMemoryStr()));
-            properties.Add(("Handles", process.HandleCount.ToString()));
+            properties.Add(("Handles", _host.GetHandleCount(process).ToString()));
 
             var lines = TextFormatting.GetAlignedColumnStrings(properties,
                                                                ":  ",
@@ -120,7 +194,24 @@ namespace SoftShell.Commands
         {
             await context.Output.WriteLineAsync("Killing the process...");
             await Task.Delay(1000);
-            Process.GetCurrentProcess().Kill();
+            _host.Kill(_host.GetCurrentProcess());
+        }
+
+        private class DefaultHost : IHost
+        {
+            public ProcessObj GetCurrentProcess() => new ProcessObj(Process.GetCurrentProcess());
+            public int GetId(ProcessObj process) => ((Process)process.Object).Id;
+            public int GetSessionId(ProcessObj process) => ((Process)process.Object).SessionId;
+            public string GetProcessName(ProcessObj process) => ((Process)process.Object).ProcessName;
+            public string GetMainWindowTitle(ProcessObj process) => ((Process)process.Object).MainWindowTitle;
+            public string GetMainModuleFileName(ProcessObj process) => ((Process)process.Object).MainModule.FileName;
+            public long GetWorkingSet64(ProcessObj process) => ((Process)process.Object).WorkingSet64;
+            public string GetPriorityClass(ProcessObj process) => ((Process)process.Object).PriorityClass.ToString();
+            public int GetBasePriority(ProcessObj process) => ((Process)process.Object).BasePriority;
+            public int GetHandleCount(ProcessObj process) => ((Process)process.Object).HandleCount;
+            public IEnumerable<string> GetCommandLineArgs() => Environment.GetCommandLineArgs();
+            public string GetCurrentDirectory() => Directory.GetCurrentDirectory();
+            public void Kill(ProcessObj process) => ((Process)process.Object).Kill();
         }
     }
 }
