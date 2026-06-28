@@ -59,13 +59,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0      # GitVersion needs full history
           fetch-tags: true    # ...and existing release tags
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
 
@@ -118,7 +118,7 @@ jobs:
           pack src/SoftShell.Ssh/SoftShell.Ssh.csproj "$SOFTSHELL_SSH_NOTES"
 
       - name: Upload package artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: nupkg
           path: ./artifacts/*.nupkg
