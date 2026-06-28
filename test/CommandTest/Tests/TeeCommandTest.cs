@@ -11,18 +11,24 @@ namespace CommandTest.Tests
 {
     public class TeeCommandTest : TestBase
     {
+        // The command derives the directory to create via Path.GetDirectoryName, which is
+        // platform-specific. Build the path with the running platform's separator so the test
+        // works on both Windows ("a\b.txt") and Unix ("a/b.txt").
+        private static readonly string Directory = "a";
+        private static readonly string FilePath = Path.Combine(Directory, "b.txt");
+
         [Fact]
         void TestEmptyFile()
         {
-            TestTeeCommand("tee a\\b.txt", "a", "a\\b.txt", false, new byte[0]);
-            TestTeeCommand("tee a\\b.txt -append", "a", "a\\b.txt", true, new byte[0]);
+            TestTeeCommand($"tee {FilePath}", Directory, FilePath, false, new byte[0]);
+            TestTeeCommand($"tee {FilePath} -append", Directory, FilePath, true, new byte[0]);
         }
 
         [Fact]
         void TestShortFile()
         {
-            TestTeeCommand("tee a\\b.txt", "a", "a\\b.txt", false, new byte[] { (byte)'x' }, "x");
-            TestTeeCommand("tee -append a\\b.txt", "a", "a\\b.txt", true, new byte[] { (byte)'x' }, "x");
+            TestTeeCommand($"tee {FilePath}", Directory, FilePath, false, new byte[] { (byte)'x' }, "x");
+            TestTeeCommand($"tee -append {FilePath}", Directory, FilePath, true, new byte[] { (byte)'x' }, "x");
         }
 
         [Fact]
@@ -35,8 +41,8 @@ namespace CommandTest.Tests
             };
             byte[] expectedFileOutput = Encoding.UTF8.GetBytes("AZaz09Æø \t\n \r\n[]%");
 
-            TestTeeCommand("tee a\\b.txt", "a", "a\\b.txt", false, expectedFileOutput, input);
-            TestTeeCommand("tee a\\b.txt -append", "a", "a\\b.txt", true, expectedFileOutput, input);
+            TestTeeCommand($"tee {FilePath}", Directory, FilePath, false, expectedFileOutput, input);
+            TestTeeCommand($"tee {FilePath} -append", Directory, FilePath, true, expectedFileOutput, input);
         }
 
         void TestTeeCommand(string commandLine, string directory, string filePath, bool append, byte[] expectedOutput, params string[] textInput)
