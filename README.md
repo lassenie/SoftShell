@@ -2,6 +2,7 @@
 
 ![Logo](https://raw.githubusercontent.com/lassenie/SoftShell/d756597f7a28654653d51723fe49dfe08af53796/doc/graphics/Logo.png)
 
+[![Tests](https://github.com/lassenie/SoftShell/actions/workflows/tests.yml/badge.svg)](https://github.com/lassenie/SoftShell/actions/workflows/tests.yml)
 [![Publish NuGet packages](https://github.com/lassenie/SoftShell/actions/workflows/publish-nuget.yml/badge.svg)](https://github.com/lassenie/SoftShell/actions/workflows/publish-nuget.yml)
 [![SoftShell on NuGet](https://img.shields.io/nuget/v/SoftShell?label=SoftShell)](https://www.nuget.org/packages/SoftShell)
 [![SoftShell.Ssh on NuGet](https://img.shields.io/nuget/v/SoftShell.Ssh?label=SoftShell.Ssh)](https://www.nuget.org/packages/SoftShell.Ssh)
