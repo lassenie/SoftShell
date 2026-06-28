@@ -34,17 +34,11 @@ using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create 
 }
 ```
 
-See the ConsoleDemoSsh application in the solution for further details.
+See the ConsoleDemoSsh application in the solution in the Git repo for further details.
 
 ## Authentication
 
 User authentication is handled by SoftShell, not by the SSH layer. The connection is encrypted, but any SSH credentials are accepted; access control is performed by SoftShell through the interactive login on the terminal.
-
-## Creating custom commands
-
-Besides the core commands that come with SoftShell you can create your own custom commands.
-
-[Read more](https://github.com/lassenie/SoftShell/blob/master/doc/CreatingCustomCommands.md)
 
 ## Contribution
 

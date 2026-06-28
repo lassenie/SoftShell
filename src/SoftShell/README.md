@@ -51,7 +51,7 @@ using (var shellHost = new SoftShellHost(UserAuthentication.None)) // or create 
 }
 ```
 
-See the ConsoleDemo1 application in the solution for further details.
+See the ConsoleDemo1 application in the solution in the Git repo for further details.
 
 ## Creating custom commands
 
