@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 // Allow unit tests to access internals
 [assembly: InternalsVisibleTo("CommandTest")]
 [assembly: InternalsVisibleTo("ExecutionTest")]
+[assembly: InternalsVisibleTo("TerminalInterfaceTest")]
 // Allow Moq (Castle DynamicProxy) to mock internal interfaces, e.g. command IHost interfaces nested in internal commands
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
